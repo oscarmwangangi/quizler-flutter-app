@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'Questions.dart';
 
 void main() => runApp(const Quizzler());
 
@@ -31,20 +32,24 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  List<String> questions = [
-    'You can lead a cow down stairs but not up stairs.',
-    'Approximately one quarter of human bones are in the feet.',
-    'A slug\'s blood is green.',
+  List<Question> questions = [
+    Question(
+        questionText: 'You can lead a cow down stairs but not up stairs.',
+        questionAnswer: false),
+    Question(
+        questionText:
+        'Approximately one quarter of human bones are in the feet.',
+        questionAnswer: true),
+    Question(questionText: 'A slug\'s blood is green.', questionAnswer: true),
   ];
 
   int questionNumber = 0;
 
-  void checkAnswer(bool userAnswer) {
-    // For now, we'll just assume all answers are true
-    bool correctAnswer = true;
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = questions[questionNumber].questionAnswer;
 
     setState(() {
-      if (userAnswer == correctAnswer) {
+      if (userPickedAnswer == correctAnswer) {
         scoreKeeper.add(const Icon(Icons.check, color: Colors.green));
       } else {
         scoreKeeper.add(const Icon(Icons.close, color: Colors.red));
@@ -53,9 +58,13 @@ class _QuizPageState extends State<QuizPage> {
       if (questionNumber < questions.length - 1) {
         questionNumber++;
       } else {
-        // Optionally, reset or show a dialog
-        questionNumber = 0;
-        scoreKeeper = [];
+        // Show an alert dialog or reset if needed
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('End of quiz!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     });
   }
@@ -72,7 +81,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                questions[questionNumber],
+                questions[questionNumber].questionText,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 25.0,
