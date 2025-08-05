@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Questions.dart';
+import 'quiz_brain.dart';
+
+Quizbrain quizBrain = Quizbrain();
 
 void main() => runApp(const Quizzler());
 
@@ -32,21 +35,11 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
 
-  List<Question> questions = [
-    Question(
-        questionText: 'You can lead a cow down stairs but not up stairs.',
-        questionAnswer: false),
-    Question(
-        questionText:
-        'Approximately one quarter of human bones are in the feet.',
-        questionAnswer: true),
-    Question(questionText: 'A slug\'s blood is green.', questionAnswer: true),
-  ];
 
   int questionNumber = 0;
 
   void checkAnswer(bool userPickedAnswer) {
-    bool correctAnswer = questions[questionNumber].questionAnswer;
+    bool correctAnswer = quizBrain.getQuestionAnswer();
 
     setState(() {
       if (userPickedAnswer == correctAnswer) {
@@ -55,16 +48,17 @@ class _QuizPageState extends State<QuizPage> {
         scoreKeeper.add(const Icon(Icons.close, color: Colors.red));
       }
 
-      if (questionNumber < questions.length - 1) {
-        questionNumber++;
-      } else {
-        // Show an alert dialog or reset if needed
+      if (quizBrain.isFinished()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('End of quiz!'),
             duration: Duration(seconds: 2),
           ),
         );
+        quizBrain.reset(); // optional: reset the quiz
+        scoreKeeper.clear(); // reset score
+      } else {
+        quizBrain.nextQuestion();
       }
     });
   }
@@ -81,7 +75,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                questions[questionNumber].questionText,
+                quizBrain.getQuestionText(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 25.0,
